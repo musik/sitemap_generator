@@ -5,6 +5,11 @@ describe 'SitemapGenerator::Builder::SitemapFile' do
   let(:sitemap)  { SitemapGenerator::Builder::SitemapFile.new(location) }
 
   it 'should have a default namer' do
+    sitemap = SitemapGenerator::Builder::SitemapFile.new SitemapGenerator::SitemapLocation.new(sm: {name: "新茶网",host: "www.xincha.com"})
+    p sitemap.output
+    expect(sitemap.location.filename).to eq('sitemap1.xml.gz')
+  end
+  it 'should have a default namer' do
     sitemap = SitemapGenerator::Builder::SitemapFile.new
     expect(sitemap.location.filename).to eq('sitemap1.xml.gz')
   end

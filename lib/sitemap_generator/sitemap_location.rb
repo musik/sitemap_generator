@@ -56,7 +56,8 @@ module SitemapGenerator
         :verbose,
         :create_index,
         :compress,
-        :max_sitemap_links
+        :max_sitemap_links,
+        :sm
       ])
       opts[:adapter] ||= SitemapGenerator::FileAdapter.new
       opts[:public_path] ||= SitemapGenerator.app.root + 'public/'

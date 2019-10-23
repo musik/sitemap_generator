@@ -57,6 +57,24 @@ describe SitemapGenerator::Builder::SitemapUrl do
       expect(SitemapGenerator::Builder::SitemapUrl.new(nil, :host => 'http://example.com')[:loc]).to eq('http://example.com')
     end.not_to raise_error
   end
+  it 'should support a :sm_item option' do
+    item = {
+      title: '测试问题?',
+      question: '你好吗?',
+      bestAnswer: '答案\n<br/>\'"'*10,
+      isAcceptAns: '0',
+      lastComment: Time.now,
+      publishDate: Time.now - 3600,
+      answers: 1,
+      normalAnswers: [
+        '1','2','3'
+      ]
+    }
+    loc = SitemapGenerator::Builder::SitemapUrl.new('', :host => 'http://test.com', :sm_item =>item)
+    expect(loc[:sm_item]).to eq(item)
+    xml = loc.to_xml
+    p xml
+  end
 
   it 'should support a :videos option' do
     loc = SitemapGenerator::Builder::SitemapUrl.new('', :host => 'http://test.com', :videos => [1,2,3])

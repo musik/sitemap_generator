@@ -36,7 +36,9 @@ module SitemapGenerator
           path = sitemap.location.path_in_public
         end
 
-        SitemapGenerator::Utilities.assert_valid_keys(options, :priority, :changefreq, :lastmod, :expires, :host, :images, :video, :news, :videos, :mobile, :alternate, :alternates, :pagemap)
+        SitemapGenerator::Utilities.assert_valid_keys(options, :priority, :changefreq, :lastmod, :expires, :host, :images, :video, :news, :videos, :mobile, :alternate, :alternates, :pagemap,
+                                                      :sm_item,
+                                                     )
         SitemapGenerator::Utilities.reverse_merge!(options, :priority => 0.5, :changefreq => 'weekly', :lastmod => Time.now, :images => [], :news => {}, :videos => [], :mobile => false, :alternates => [])
         raise "Cannot generate a url without a host" unless SitemapGenerator::Utilities.present?(options[:host])
 
@@ -59,14 +61,36 @@ module SitemapGenerator
           :images     => prepare_images(options[:images], options[:host]),
           :news       => prepare_news(options[:news]),
           :videos     => options[:videos],
+          :sm_item     => options[:sm_item],
           :mobile     => options[:mobile],
           :alternates => options[:alternates],
           :pagemap    => options[:pagemap]
         )
       end
 
+      def to_sm_xml(builder=nil)
+        builder = ::Builder::XmlMarkup.new if builder.nil?
+        item = self[:sm_item]
+        builder.item do
+          builder.url        self[:loc]
+          item.each do |k,v|
+            v= v.strftime("%Y-%m-%d %H:%M:%S") if v.class.name.match(/Time/)
+            v = v.to_s if v.is_a?(Integer)
+            builder.tag! k do builder.cdata!(v) end if v.is_a? String
+          end
+          builder.normalAnswers do 
+            item[:normalAnswers].each do |asw|
+              builder.normalAnswer do 
+                builder.cdata! asw
+              end
+            end
+          end if item[:normalAnswers]
+        end
+        builder << ''
+      end
       # Return the URL as XML
       def to_xml(builder=nil)
+        return to_sm_xml(builder) if sm_item?
         builder = ::Builder::XmlMarkup.new if builder.nil?
         builder.url do
           builder.loc        self[:loc]
@@ -157,6 +181,9 @@ module SitemapGenerator
           end
         end
         builder << '' # Force to string
+      end
+      def sm_item?
+        SitemapGenerator::Utilities.present?(self[:sm_item])
       end
 
       def news?

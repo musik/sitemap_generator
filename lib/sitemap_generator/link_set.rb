@@ -8,7 +8,7 @@ module SitemapGenerator
     @@new_location_opts = [:filename, :sitemaps_path, :namer]
 
     attr_reader :default_host, :sitemaps_path, :filename, :create_index
-    attr_accessor :include_root, :include_index, :adapter, :yield_sitemap, :max_sitemap_links
+    attr_accessor :include_root, :include_index, :adapter, :yield_sitemap, :max_sitemap_links, :sm
     attr_writer :verbose
 
     # Create a new sitemap index and sitemap files.  Pass a block with calls to the following
@@ -118,7 +118,7 @@ module SitemapGenerator
     # Note: When adding a new option be sure to include it in `options_for_group()` if
     # the option should be inherited by groups.
     def initialize(options={})
-      @default_host, @sitemaps_host, @yield_sitemap, @sitemaps_path, @adapter, @verbose, @protect_index, @sitemap_index, @added_default_links, @created_group, @sitemap = nil
+      @default_host, @sitemaps_host, @yield_sitemap, @sitemaps_path, @adapter, @verbose, @protect_index, @sitemap_index, @added_default_links, @created_group, @sitemap, @sm = nil
 
       options = SitemapGenerator::Utilities.reverse_merge(options,
         :include_root => true,
@@ -580,7 +580,8 @@ module SitemapGenerator
           :adapter => @adapter,
           :verbose => verbose,
           :compress => @compress,
-          :max_sitemap_links => max_sitemap_links
+          :max_sitemap_links => max_sitemap_links,
+          :sm => @sm
         )
       end
 

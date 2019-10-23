@@ -42,10 +42,26 @@ module SitemapGenerator
         HTML
         @xml_wrapper_start.gsub!(/\s+/, ' ').gsub!(/ *> */, '>').strip!
         @xml_wrapper_end   = %q[</urlset>]
+        _sm_wrapper @location[:sm]
         @filesize = SitemapGenerator::Utilities.bytesize(@xml_wrapper_start) + SitemapGenerator::Utilities.bytesize(@xml_wrapper_end)
         @written = false
         @reserved_name = nil # holds the name reserved from the namer
         @frozen = false      # rather than actually freeze, use this boolean
+      end
+      def _sm_wrapper opts
+        return if opts.nil?
+        @xml_wrapper_start = <<-HTML
+          <?xml version="1.0" encoding="utf-8"?>
+            <document>
+            <webName><![CDATA[#{opts[:name]}]]></webName>
+            <hostName><![CDATA[#{opts[:host]}]]></hostName>
+            <datalist>
+        HTML
+        @xml_wrapper_start.gsub!(/\s+/, ' ').gsub!(/ *> */, '>').strip!
+        @xml_wrapper_end   = %q[</datalist></document>]
+      end
+      def output
+        @xml_wrapper_start + @xml_content + @xml_wrapper_end
       end
 
       # If a name has been reserved, use the last modified time from the file.
